@@ -26,7 +26,7 @@ def save_settings(email, settings):
 
 # --- UI ---
 st.set_page_config(page_title="Insabot Plattform", page_icon="🚀")
-st.title("🚀 Insabot – Deine automatisierte Insta-Wachstumsplattform")
+st.title("🚀 Instabot – Deine automatisierte Insta-Wachstumsplattform")
 
 st.write("Bitte gib deine E-Mail-Adresse ein, um deinen Abo-Status zu prüfen.")
 email = st.text_input("E-Mail")
