@@ -50,32 +50,78 @@ def login_instagram(username, password):
             return None
     return cl
 
-# --- STYLE ---
-st.set_page_config(page_title="InstaMaster", page_icon="🚀", layout="centered")
+# --- DARK MODE TOGGLE ---
+st.sidebar.title("🌙 Ansicht")
+dark_mode = st.sidebar.checkbox("Dark Mode aktivieren")
 
-st.markdown("""
-    <style>
-    body { background-color: #fafafa; }
-    .css-18e3th9 { padding: 2rem 1rem; }
-    .stButton>button {
-        background-color: #ff5c5c;
-        color: white;
-        font-weight: bold;
-        border-radius: 10px;
-        padding: 0.75em 1.5em;
-    }
-    .stTextInput>div>input {
-        background-color: #fff;
-        padding: 0.6em;
-        border-radius: 10px;
-        border: 1px solid #ccc;
-    }
-    .stSlider>div>div>div {
-        background-color: #f3f3f3;
-    }
-    footer {visibility: hidden;}
-    </style>
-""", unsafe_allow_html=True)
+if dark_mode:
+    st.markdown("""
+        <style>
+        body {
+            background-color: #1e1e1e;
+            color: #f5f5f5;
+        }
+        .stButton>button {
+            background-color: #ff3c69;
+            color: white;
+            border-radius: 12px;
+            padding: 0.75em 1.5em;
+        }
+        .stTextInput>div>input,
+        .stTextArea>div>textarea {
+            background-color: #2c2c2c;
+            color: white;
+            border: 1px solid #555;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            color: #ff3c69;
+        }
+        a {
+            color: #ff3c69;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+else:
+    st.markdown("""
+        <style>
+        body {
+            background-color: #fdf7f2;
+            font-family: 'Helvetica Neue', sans-serif;
+        }
+        .css-18e3th9 { padding: 2rem 1rem; }
+        .stButton>button {
+            background-color: #ff3c69;
+            color: white;
+            font-weight: bold;
+            border-radius: 12px;
+            padding: 0.75em 1.5em;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        .stButton>button:hover {
+            background-color: #e12f5b;
+            transform: scale(1.02);
+        }
+        .stTextInput>div>input,
+        .stTextArea>div>textarea {
+            background-color: #fff8f4;
+            padding: 0.6em;
+            border-radius: 10px;
+            border: 1px solid #ffc9b9;
+        }
+        .stSlider>div>div>div {
+            background-color: #fde2d9;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            color: #ff3c69;
+        }
+        a {
+            color: #ff3c69;
+            font-weight: bold;
+        }
+        footer {visibility: hidden;}
+        </style>
+    """, unsafe_allow_html=True)
 
 # --- COOKIES HINWEIS ---
 st.warning("🍪 Diese Seite verwendet Cookies, um dein Nutzungserlebnis zu verbessern.")
@@ -98,6 +144,12 @@ st.markdown("""
 
 ---
 """)
+
+# --- Testimonials / Social Proof ---
+st.subheader("💬 Was sagen unsere Nutzer?")
+st.success("\"Ich konnte mit InstaMaster in 2 Wochen über 800 echte Follower gewinnen – ohne Werbung!\" – Laura, Coachin")
+st.info("\"Endlich ein Bot, der nicht spamt, sondern wirklich mit meiner Zielgruppe interagiert.\" – Tim, Content Creator")
+st.success("\"Die automatische Zielgruppenanalyse hat mir so viel Zeit gespart – einfach genial!\" – Alex, Unternehmer")
 
 st.markdown("**Jetzt starten & Abo aktivieren:**")
 st.markdown("[🔐 Jetzt registrieren & Abo abschließen](https://www.checkout-ds24.com/product/599133)", unsafe_allow_html=True)
