@@ -94,12 +94,32 @@ st.markdown("""
         color: #ff3c69;
         font-weight: bold;
     }
+    .cookie-box {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        width: 300px;
+        background-color: #fff8f4;
+        border: 1px solid #ffc9b9;
+        padding: 1rem;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        z-index: 9999;
+    }
     footer {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
 
 # --- COOKIES HINWEIS ---
-st.warning("🍪 Diese Seite verwendet Cookies, um dein Nutzungserlebnis zu verbessern.")
+if "cookies_accepted" not in st.session_state:
+    with st.container():
+        st.markdown("""
+        <div class="cookie-box">
+            🍪 Diese Seite verwendet Cookies, um dein Nutzungserlebnis zu verbessern.<br><br>
+        """, unsafe_allow_html=True)
+        if st.button("Akzeptieren", key="cookie_btn"):
+            st.session_state["cookies_accepted"] = True
+            st.experimental_rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
 
 # --- REST BLEIBT UNVERÄNDERT (LANDINGPAGE + LOGIN ETC.) ---
-# (Bleibt bestehen wie im bisherigen Code, hier nicht erneut eingefügt, um Übersicht zu wahren)
