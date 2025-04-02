@@ -122,4 +122,79 @@ if "cookies_accepted" not in st.session_state:
             st.experimental_rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
-# --- REST BLEIBT UNVERÄNDERT (LANDINGPAGE + LOGIN ETC.) ---
+# --- LANDINGPAGE ---
+
+st.image("https://instaupgrade.de/wp-content/uploads/2024/03/logo.svg", width=200)
+st.title("InstaMaster – Smarter Instagram Bot für echtes Wachstum")
+
+st.markdown("""
+### 🚀 Automatisiere dein Wachstum auf Instagram – ganz ohne Fake-Follower!
+
+- Echtes Engagement mit deiner Zielgruppe
+- Interaktion mit ähnlichen Profilen
+- Likes, Kommentare & Follows – komplett automatisiert
+- Individuelle Zielgruppenanalyse basierend auf deinen Angaben
+- DSGVO-konform, ohne Spam oder Bot-Gefahr
+- Funktioniert ohne Werbung & ohne Facebook-Zugang
+
+👉 **Wachse wie die Profis – sicher, smart und sichtbar.**
+
+---
+""")
+
+# --- Testimonials ---
+st.subheader("💬 Was sagen unsere Nutzer?")
+st.success("\"Ich konnte mit InstaMaster in 2 Wochen über 800 echte Follower gewinnen – ohne Werbung!\" – Laura, Coachin")
+st.info("\"Endlich ein Bot, der nicht spamt, sondern wirklich mit meiner Zielgruppe interagiert.\" – Tim, Content Creator")
+st.success("\"Die automatische Zielgruppenanalyse hat mir so viel Zeit gespart – einfach genial!\" – Alex, Unternehmer")
+
+st.markdown("**Jetzt starten & Abo aktivieren:**")
+st.markdown("[🔐 Jetzt registrieren & Abo abschließen](https://www.checkout-ds24.com/product/599133)", unsafe_allow_html=True)
+
+st.markdown("""
+---
+### 🔐 Du hast bereits ein Konto?
+""")
+
+email = st.text_input("E-Mail")
+password = st.text_input("Passwort", type="password")
+
+if email and password:
+    if authenticate_user(email, password):
+        st.success("✅ Login erfolgreich – Willkommen zurück!")
+
+        st.markdown("[🧾 Mein Abo verwalten](https://www.digistore24.com/my/orders)", unsafe_allow_html=True)
+        st.markdown("[🔓 Logout](#)", unsafe_allow_html=True)
+
+        st.header("🔧 Bot-Zugang")
+        st.write("Bitte gib deinen Instagram-Benutzernamen und dein Passwort ein.")
+        ig_user = st.text_input("Instagram Benutzername")
+        ig_pass = st.text_input("Instagram Passwort", type="password")
+
+        if ig_user and ig_pass:
+            client = login_instagram(ig_user, ig_pass)
+            if client:
+                st.success("🔐 Instagram Login erfolgreich")
+                follower_count = client.user_info_by_username(ig_user).follower_count
+                st.info(f"👥 Aktuelle Follower: {follower_count}")
+
+                st.subheader("📌 Zielgruppen-Definition")
+                target_description = st.text_area("Beschreibe deine Zielgruppe (z. B. Mütter mit Kleinkindern, Fitnessfans, Coaches)")
+                competitor_profiles = st.text_input("Große Instagram-Profile mit ähnlicher Zielgruppe (z. B. @coachxy, @inspirationsdaily)")
+
+                if st.button("🚀 Bot starten"):
+                    current_hour = datetime.now().hour
+                    if current_hour not in ACTIVE_HOURS:
+                        st.warning("⏰ Der Bot ist aktuell im Nachtmodus (aktiv von 8–21 Uhr). Kein Start möglich.")
+                    else:
+                        settings = {
+                            "ig_user": ig_user,
+                            "target_description": target_description,
+                            "competitor_profiles": competitor_profiles
+                        }
+                        save_settings(email, settings)
+                        st.success("🌟 Einstellungen gespeichert. Der Bot arbeitet im Hintergrund.")
+
+                        st.info("🤖 Bot analysiert jetzt Inhalte & Zielgruppenverhalten und interagiert eigenständig mit passenden Nutzern.")
+    else:
+        st.error("❌ Login fehlgeschlagen – bitte überprüfe deine Zugangsdaten.")
