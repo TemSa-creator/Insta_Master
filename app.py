@@ -3,20 +3,36 @@ import requests
 import json
 from instagrapi import Client
 import os
+import random
+from datetime import datetime
 
 # --- CONFIG ---
-TENTARY_API_KEY = " 968c63642c3ef2e43f76acb0e992715c"
-TENTARY_PRODUCT_ID = "221551"
+ACTIVE_HOURS = range(8, 22)  # Nur zwischen 8 und 21 Uhr aktiv
+USERS_DB = "users.json"
 
-# --- PLACEHOLDER-FUNKTIONEN ---
-def check_abo_status(user_email):
-    response = requests.get(
-        f"https://api.tentary.com/subscription/status?email={user_email}&product_id={TENTARY_PRODUCT_ID}",
-        headers={"Authorization": f"Bearer {TENTARY_API_KEY}"}
-    )
-    if response.status_code == 200:
-        data = response.json()
-        return data.get("active", False)
+# --- USER MANAGEMENT ---
+def load_users():
+    if os.path.exists(USERS_DB):
+        with open(USERS_DB, "r") as f:
+            return json.load(f)
+    return {}
+
+def save_users(users):
+    with open(USERS_DB, "w") as f:
+        json.dump(users, f)
+
+def register_user(email, password):
+    users = load_users()
+    if email in users:
+        return False, "Nutzer existiert bereits."
+    users[email] = {"password": password}
+    save_users(users)
+    return True, "Registrierung erfolgreich."
+
+def authenticate_user(email, password):
+    users = load_users()
+    if email in users and users[email]["password"] == password:
+        return True
     return False
 
 def save_settings(email, settings):
@@ -42,60 +58,82 @@ def login_instagram(username, password):
             return None
     return cl
 
+# --- STYLE ---
+st.set_page_config(page_title="InstaMaster", page_icon="🚀", layout="centered")
+
+st.markdown("""
+    <style>
+    body { background-color: #fafafa; }
+    .css-18e3th9 { padding: 2rem 1rem; }
+    .stButton>button {
+        background-color: #ff5c5c;
+        color: white;
+        font-weight: bold;
+        border-radius: 10px;
+        padding: 0.75em 1.5em;
+    }
+    .stTextInput>div>input {
+        background-color: #fff;
+        padding: 0.6em;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+    }
+    .stSlider>div>div>div {
+        background-color: #f3f3f3;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # --- UI ---
-st.set_page_config(page_title="Insabot Plattform", page_icon="🚀")
-st.title("🚀 Instabot – Deine automatisierte Insta-Wachstumsplattform")
+st.image("https://instaupgrade.de/wp-content/uploads/2024/03/logo.svg", width=200)
+st.title("InstaMaster – Dein smarter Instagram-Wachstumsassistent")
 
-st.write("Bitte gib deine E-Mail-Adresse ein, um deinen Abo-Status zu prüfen.")
+menu = st.selectbox("Was möchtest du tun?", ["Einloggen", "Registrieren"])
 email = st.text_input("E-Mail")
+password = st.text_input("Passwort", type="password")
 
-if email:
-    if check_abo_status(email):
-        st.success("✅ Abo aktiv – Dein Bot arbeitet im Hintergrund")
+if email and password:
+    if menu == "Registrieren":
+        success, message = register_user(email, password)
+        if success:
+            st.success(message)
+        else:
+            st.error(message)
+    elif menu == "Einloggen":
+        if authenticate_user(email, password):
+            st.success("✅ Login erfolgreich – Willkommen zurück!")
 
-        st.header("🔧 Bot-Einstellungen")
-        st.write("Bitte gib deine Instagram-Zugangsdaten ein (werden NICHT dauerhaft gespeichert)")
-        ig_user = st.text_input("Instagram Benutzername")
-        ig_pass = st.text_input("Instagram Passwort", type="password")
+            st.header("🔧 Bot-Zugang")
+            st.write("Bitte gib deinen Instagram-Benutzernamen und dein Passwort ein.")
+            ig_user = st.text_input("Instagram Benutzername")
+            ig_pass = st.text_input("Instagram Passwort", type="password")
 
-        if ig_user and ig_pass:
-            client = login_instagram(ig_user, ig_pass)
-            if client:
-                st.success("🔐 Instagram Login erfolgreich")
+            if ig_user and ig_pass:
+                client = login_instagram(ig_user, ig_pass)
+                if client:
+                    st.success("🔐 Instagram Login erfolgreich")
+                    follower_count = client.user_info_by_username(ig_user).follower_count
+                    st.info(f"👥 Aktuelle Follower: {follower_count}")
 
-                hashtags = st.text_input("Ziel-Hashtags (mit Komma getrennt)")
-                profiles = st.text_input("Zielprofile (z. B. @coachxy, @businessqueen)")
-                likes = st.slider("Likes pro Tag", 10, 200, 50)
-                comments = st.checkbox("Kommentare aktivieren")
-                dms = st.checkbox("DMs an neue Follower senden")
+                    st.subheader("📌 Zielgruppen-Definition")
+                    target_description = st.text_area("Beschreibe deine Zielgruppe (z. B. Mütter mit Kleinkindern, Fitnessfans, Coaches)")
+                    competitor_profiles = st.text_input("Große Instagram-Profile mit ähnlicher Zielgruppe (z. B. @coachxy, @inspirationsdaily)")
 
-                if st.button("📁 Einstellungen speichern & Bot starten"):
-                    settings = {
-                        "hashtags": hashtags,
-                        "profiles": profiles,
-                        "likes": likes,
-                        "comments": comments,
-                        "dms": dms
-                    }
-                    save_settings(email, settings)
-                    st.success("🌟 Einstellungen gespeichert. Dein Bot ist aktiv.")
+                    if st.button("🚀 Bot starten"):
+                        current_hour = datetime.now().hour
+                        if current_hour not in ACTIVE_HOURS:
+                            st.warning("⏰ Der Bot ist aktuell im Nachtmodus (aktiv von 8–21 Uhr). Kein Start möglich.")
+                        else:
+                            settings = {
+                                "ig_user": ig_user,
+                                "target_description": target_description,
+                                "competitor_profiles": competitor_profiles
+                            }
+                            save_settings(email, settings)
+                            st.success("🌟 Einstellungen gespeichert. Der Bot arbeitet im Hintergrund.")
 
-                    # --- SIMPLE LIKE-FUNKTION NACH HASHTAGS (als Start!) ---
-                    if hashtags:
-                        st.info("🔄 Bot startet Like-Runde...")
-                        for tag in [h.strip() for h in hashtags.split(",") if h.strip()]:
-                            medias = client.hashtag_medias_recent(tag, amount=likes//len(hashtags.split(",")))
-                            for media in medias:
-                                try:
-                                    client.media_like(media.id)
-                                except:
-                                    pass
-                        st.success("✅ Likes wurden verteilt!")
+                            st.info("🤖 Bot analysiert jetzt Inhalte & Zielgruppenverhalten und interagiert eigenständig mit passenden Nutzern.")
+                            # Hinweis: Die Interaktion erfolgt später automatisch per Scheduler
 
-                st.markdown("---")
-                st.subheader("🎵 Zugang zum Musikbot")
-                st.markdown("[Hier klicken, um deinen Musikbot zu starten](https://dein-musikbot-link.de)")
-
-    else:
-        st.error("❌ Kein aktives Abo gefunden. Bitte schließe zuerst dein Abo ab.")
-        st.markdown("[Jetzt Abo abschließen](https://www.checkout-ds24.com/product/599133)")
+        else:
+            st.error("❌ Login fehlgeschlagen – bitte überprüfe deine Zugangsdaten.")
