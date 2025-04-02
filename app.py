@@ -7,7 +7,7 @@ import random
 from datetime import datetime
 
 # --- CONFIG ---
-ACTIVE_HOURS = range(8, 22)  # Nur zwischen 8 und 21 Uhr aktiv
+ACTIVE_HOURS = range(8, 22)
 USERS_DB = "users.json"
 
 # --- USER MANAGEMENT ---
@@ -20,14 +20,6 @@ def load_users():
 def save_users(users):
     with open(USERS_DB, "w") as f:
         json.dump(users, f)
-
-def register_user(email, password):
-    users = load_users()
-    if email in users:
-        return False, "Nutzer existiert bereits."
-    users[email] = {"password": password}
-    save_users(users)
-    return True, "Registrierung erfolgreich."
 
 def authenticate_user(email, password):
     users = load_users()
@@ -88,15 +80,35 @@ st.markdown("""
 # --- COOKIES HINWEIS ---
 st.warning("🍪 Diese Seite verwendet Cookies, um dein Nutzungserlebnis zu verbessern.")
 
-# --- UI ---
+# --- LANDINGPAGE ---
 st.image("https://instaupgrade.de/wp-content/uploads/2024/03/logo.svg", width=200)
-st.title("InstaMaster – Dein smarter Instagram-Wachstumsassistent")
+st.title("InstaMaster – Smarter Instagram Bot für echtes Wachstum")
 
-st.subheader("🔐 Login")
+st.markdown("""
+### 🚀 Automatisiere dein Wachstum auf Instagram – ganz ohne Fake-Follower!
+
+- Echtes Engagement mit deiner Zielgruppe
+- Interaktion mit ähnlichen Profilen
+- Likes, Kommentare & Follows – komplett automatisiert
+- Individuelle Zielgruppenanalyse basierend auf deinen Angaben
+- DSGVO-konform, ohne Spam oder Bot-Gefahr
+- Funktioniert ohne Werbung & ohne Facebook-Zugang
+
+👉 **Wachse wie die Profis – sicher, smart und sichtbar.**
+
+---
+""")
+
+st.markdown("**Jetzt starten & Abo aktivieren:**")
+st.markdown("[🔐 Jetzt registrieren & Abo abschließen](https://www.checkout-ds24.com/product/599133)", unsafe_allow_html=True)
+
+st.markdown("""
+---
+### 🔐 Du hast bereits ein Konto?
+""")
+
 email = st.text_input("E-Mail")
 password = st.text_input("Passwort", type="password")
-
-st.markdown("Noch kein Konto? 👉 [Jetzt Abo abschließen & registrieren](https://www.checkout-ds24.com/product/599133)", unsafe_allow_html=True)
 
 if email and password:
     if authenticate_user(email, password):
@@ -135,7 +147,5 @@ if email and password:
                         st.success("🌟 Einstellungen gespeichert. Der Bot arbeitet im Hintergrund.")
 
                         st.info("🤖 Bot analysiert jetzt Inhalte & Zielgruppenverhalten und interagiert eigenständig mit passenden Nutzern.")
-                        # Hinweis: Die Interaktion erfolgt später automatisch per Scheduler
-
     else:
         st.error("❌ Login fehlgeschlagen – bitte überprüfe deine Zugangsdaten.")
