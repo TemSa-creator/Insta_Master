@@ -41,17 +41,11 @@ with sync_playwright() as p:
     page.fill("input[name='password']", password)
     time.sleep(random.uniform(1.0, 2.0))
 
-    # Neuer robuster Klick mit evaluateHandle (bypasst Blockierungen)
+    # Klick vollständig per JS auslösen, ohne Sichtbarkeit
     try:
-        login_button = page.query_selector("button[type='submit']")
-        if login_button:
-            page.evaluate("element => element.click()", login_button)
-        else:
-            print("❌ Login-Button nicht gefunden.")
-            browser.close()
-            sys.exit(1)
+        page.evaluate("document.querySelector('button[type=\\'submit\\']').click()")
     except Exception as e:
-        print(f"⚠️ Fehler beim Klick auf Login: {e}")
+        print(f"⚠️ JavaScript-Klick fehlgeschlagen: {e}")
         browser.close()
         sys.exit(1)
 
