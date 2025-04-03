@@ -1,10 +1,10 @@
 import streamlit as st
 import requests
 import json
-from instagrapi import Client
 import os
 import random
 from datetime import datetime
+import subprocess
 
 # --- CONFIG ---
 ACTIVE_HOURS = range(8, 22)
@@ -30,25 +30,6 @@ def authenticate_user(email, password):
 def save_settings(email, settings):
     with open(f"settings_{email}.json", "w") as f:
         json.dump(settings, f)
-
-def login_instagram(username, password):
-    cl = Client()
-    session_file = f"session_{username}.json"
-    if os.path.exists(session_file):
-        cl.load_settings(session_file)
-        try:
-            cl.login(username, password)
-        except Exception as e:
-            st.error(f"Login mit gespeicherter Session fehlgeschlagen: {e}")
-            return None
-    else:
-        try:
-            cl.login(username, password)
-            cl.dump_settings(session_file)
-        except Exception as e:
-            st.error(f"Login fehlgeschlagen: {e}")
-            return None
-    return cl
 
 # --- STYLING MIT HINTERGRUND-BILD ---
 st.set_page_config(page_title="InstaMaster", page_icon="🚀", layout="centered")
@@ -172,29 +153,30 @@ if email and password:
         ig_pass = st.text_input("Instagram Passwort", type="password")
 
         if ig_user and ig_pass:
-            client = login_instagram(ig_user, ig_pass)
-            if client:
-                st.success("🔐 Instagram Login erfolgreich")
-                follower_count = client.user_info_by_username(ig_user).follower_count
-                st.info(f"👥 Aktuelle Follower: {follower_count}")
+            st.success("🔐 Instagram Login über Headless-Browser gestartet")
+            st.info("🤖 Der Bot simuliert nun menschliches Verhalten auf deinem Profil...")
 
-                st.subheader("📌 Zielgruppen-Definition")
-                target_description = st.text_area("Beschreibe deine Zielgruppe (z. B. Mütter mit Kleinkindern, Fitnessfans, Coaches)")
-                competitor_profiles = st.text_input("Große Instagram-Profile mit ähnlicher Zielgruppe (z. B. @coachxy, @inspirationsdaily)")
+            st.subheader("📌 Zielgruppen-Definition")
+            target_description = st.text_area("Beschreibe deine Zielgruppe (z. B. Mütter mit Kleinkindern, Fitnessfans, Coaches)")
+            competitor_profiles = st.text_input("Große Instagram-Profile mit ähnlicher Zielgruppe (z. B. @coachxy, @inspirationsdaily)")
 
-                if st.button("🚀 Bot starten"):
-                    current_hour = datetime.now().hour
-                    if current_hour not in ACTIVE_HOURS:
-                        st.warning("⏰ Der Bot ist aktuell im Nachtmodus (aktiv von 8–21 Uhr). Kein Start möglich.")
-                    else:
-                        settings = {
-                            "ig_user": ig_user,
-                            "target_description": target_description,
-                            "competitor_profiles": competitor_profiles
-                        }
-                        save_settings(email, settings)
-                        st.success("🌟 Einstellungen gespeichert. Der Bot arbeitet im Hintergrund.")
+            if st.button("🚀 Bot starten"):
+                current_hour = datetime.now().hour
+                if current_hour not in ACTIVE_HOURS:
+                    st.warning("⏰ Der Bot ist aktuell im Nachtmodus (aktiv von 8–21 Uhr). Kein Start möglich.")
+                else:
+                    settings = {
+                        "ig_user": ig_user,
+                        "target_description": target_description,
+                        "competitor_profiles": competitor_profiles
+                    }
+                    save_settings(email, settings)
 
-                        st.info("🤖 Bot analysiert jetzt Inhalte & Zielgruppenverhalten und interagiert eigenständig mit passenden Nutzern.")
+                    # --- STARTE HEADLESS SCRIPT ---
+                    try:
+                        subprocess.Popen(["python", "headless_bot.py", ig_user, ig_pass])
+                        st.success("🌟 Der Headless-Bot wurde gestartet und arbeitet im Hintergrund.")
+                    except Exception as e:
+                        st.error(f"Fehler beim Start des Headless-Bots: {e}")
     else:
         st.error("❌ Login fehlgeschlagen – bitte überprüfe deine Zugangsdaten.")
