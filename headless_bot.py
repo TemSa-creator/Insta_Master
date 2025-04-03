@@ -35,15 +35,21 @@ with sync_playwright() as p:
     except:
         pass
 
-    # Login-Felder ausfüllen
-    page.fill("input[name='username']", username)
-    time.sleep(random.uniform(0.8, 1.2))
-    page.fill("input[name='password']", password)
-    time.sleep(random.uniform(1.0, 2.0))
+    # Login-Felder warten und ausfüllen
+    try:
+        page.wait_for_selector("input[name='username']", timeout=30000)
+        page.fill("input[name='username']", username)
+        time.sleep(random.uniform(0.8, 1.2))
+        page.fill("input[name='password']", password)
+        time.sleep(random.uniform(1.0, 2.0))
+    except Exception as e:
+        print(f"⚠️ Fehler beim Finden der Login-Felder: {e}")
+        browser.close()
+        sys.exit(1)
 
     # Klick vollständig per JS auslösen, ohne Sichtbarkeit
     try:
-        page.evaluate("document.querySelector('button[type=\\'submit\\']').click()")
+        page.evaluate("document.querySelector('button[type=\'submit\']').click()")
     except Exception as e:
         print(f"⚠️ JavaScript-Klick fehlgeschlagen: {e}")
         browser.close()
