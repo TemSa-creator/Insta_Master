@@ -67,8 +67,12 @@ with sync_playwright() as p:
             time.sleep(random.uniform(1, 2))
             first_post.click()
             time.sleep(random.uniform(3, 4))
-            page.click("svg[aria-label='Gefällt mir']")
-            print("❤️ Ersten Beitrag geliked!")
+            like_button = page.locator("svg[aria-label='Gefällt mir']").first
+            if like_button:
+                like_button.click()
+                print("❤️ Ersten Beitrag geliked!")
+            else:
+                print("⚠️ Kein Like-Button gefunden.")
         except Exception as e:
             print(f"⚠️ Keine Posts gefunden oder Like nicht möglich: {e}")
 
