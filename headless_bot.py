@@ -31,9 +31,15 @@ with sync_playwright() as p:
     page.fill("input[name='username']", username)
     page.fill("input[name='password']", password)
 
-    # Sicherer Klick auf Login-Button mit JavaScript-Bypass
+    # Neuer robuster Klick mit evaluateHandle (bypasst Blockierungen)
     try:
-        page.evaluate("document.querySelector('button[type=\\'submit\\']').click()")
+        login_button = page.query_selector("button[type='submit']")
+        if login_button:
+            page.evaluate("element => element.click()", login_button)
+        else:
+            print("❌ Login-Button nicht gefunden.")
+            browser.close()
+            sys.exit(1)
     except Exception as e:
         print(f"⚠️ Fehler beim Klick auf Login: {e}")
         browser.close()
