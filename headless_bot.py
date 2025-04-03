@@ -30,7 +30,14 @@ with sync_playwright() as p:
     # Login-Felder ausfüllen
     page.fill("input[name='username']", username)
     page.fill("input[name='password']", password)
-    page.click("button[type='submit']")
+
+    # Sicherer Klick auf Login-Button mit JavaScript-Bypass
+    try:
+        page.evaluate("document.querySelector('button[type=\\'submit\\']').click()")
+    except Exception as e:
+        print(f"⚠️ Fehler beim Klick auf Login: {e}")
+        browser.close()
+        sys.exit(1)
 
     time.sleep(5)
 
