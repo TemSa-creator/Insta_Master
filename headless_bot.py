@@ -38,12 +38,19 @@ with sync_playwright() as p:
     # Login-Felder ausfüllen
     try:
         page.wait_for_selector("input[name='username']", timeout=30000)
-        page.fill("input[name='username']", username)
+        username_field = page.query_selector("input[name='username']")
+        password_field = page.query_selector("input[name='password']")
+
+        if not username_field or not password_field:
+            raise Exception("Login-Felder nicht gefunden")
+
+        username_field.fill(username)
         time.sleep(random.uniform(0.8, 1.2))
-        page.fill("input[name='password']", password)
+        password_field.fill(password)
         time.sleep(random.uniform(1.0, 2.0))
+
     except Exception as e:
-        print(f"⚠️ Fehler beim Finden der Login-Felder: {e}")
+        print(f"⚠️ Fehler beim Finden oder Ausfüllen der Login-Felder: {e}")
         browser.close()
         sys.exit(1)
 
