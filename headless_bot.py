@@ -59,13 +59,16 @@ with sync_playwright() as p:
         page.wait_for_selector("button[type='submit']", timeout=15000)
         submit_button = page.query_selector("button[type='submit']")
         if submit_button:
-            page.evaluate("el => el.scrollIntoView()", submit_button)
-            time.sleep(random.uniform(0.8, 1.4))
+            page.evaluate("el => el.scrollIntoView({behavior: 'smooth', block: 'center'})", submit_button)
+            time.sleep(random.uniform(1.0, 1.6))
+            page.wait_for_timeout(1000)
+
+            # Versuche normalen Klick
             try:
-                submit_button.click()
+                submit_button.click(timeout=5000)
             except:
                 print("⚠️ Normaler Klick fehlgeschlagen – versuche Force-Click...")
-                page.click("button[type='submit']", force=True)
+                page.click("button[type='submit']", force=True, timeout=5000)
         else:
             raise Exception("🚫 Login-Button nicht gefunden!")
     except Exception as e:
