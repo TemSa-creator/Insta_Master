@@ -47,23 +47,22 @@ with sync_playwright() as p:
         browser.close()
         sys.exit(1)
 
-    # Sicherer Login-Klick via JavaScript
+    # Sicherer Login-Klick
     try:
-    page.wait_for_selector("button[type='submit']", timeout=15000)
-    submit_button = page.query_selector("button[type='submit']")
-    if submit_button:
-        page.evaluate("el => el.scrollIntoView()", submit_button)
-        time.sleep(random.uniform(0.8, 1.4))
-        submit_button.click()
-    else:
-        raise Exception("🚫 Login-Button nicht gefunden!")
-except Exception as e:
-    print(f"⚠️ Sicherer Klick auf Login-Button fehlgeschlagen: {e}")
-    browser.close()
-    sys.exit(1)
-
+        page.wait_for_selector("button[type='submit']", timeout=15000)
+        submit_button = page.query_selector("button[type='submit']")
+        if submit_button:
+            page.evaluate("el => el.scrollIntoView()", submit_button)
+            time.sleep(random.uniform(0.8, 1.4))
+            try:
+                submit_button.click()
+            except:
+                print("⚠️ Normaler Klick fehlgeschlagen – versuche Force-Click...")
+                page.click("button[type='submit']", force=True)
+        else:
+            raise Exception("🚫 Login-Button nicht gefunden!")
     except Exception as e:
-        print(f"⚠️ JavaScript-Klick fehlgeschlagen: {e}")
+        print(f"⚠️ Sicherer Klick auf Login-Button fehlgeschlagen: {e}")
         browser.close()
         sys.exit(1)
 
