@@ -20,7 +20,7 @@ if current_hour < 8 or current_hour > 21:
 
 # --- Bot starten ---
 with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True, slow_mo=100)  # Slow mode für menschlich wirkende Aktionen
+    browser = p.chromium.launch(headless=True, slow_mo=100)
     context = browser.new_context(user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36")
     page = context.new_page()
 
@@ -29,13 +29,13 @@ with sync_playwright() as p:
     page.goto("https://www.instagram.com/accounts/login/")
     time.sleep(random.uniform(2.5, 4.0))
 
-    # Cookies akzeptieren, falls vorhanden
+    # Cookies akzeptieren
     try:
         page.click("text=Alle zulassen")
     except:
         pass
 
-    # Login-Felder warten und ausfüllen
+    # Login-Felder ausfüllen
     try:
         page.wait_for_selector("input[name='username']", timeout=30000)
         page.fill("input[name='username']", username)
@@ -47,9 +47,9 @@ with sync_playwright() as p:
         browser.close()
         sys.exit(1)
 
-    # Klick vollständig per JS auslösen, ohne Sichtbarkeit
+    # Sicherer Login-Klick via JavaScript
     try:
-        page.evaluate("document.querySelector('button[type=\'submit\']').click()")
+        page.evaluate("document.querySelector('button[type=\\'submit\\']').click()")
     except Exception as e:
         print(f"⚠️ JavaScript-Klick fehlgeschlagen: {e}")
         browser.close()
@@ -57,13 +57,11 @@ with sync_playwright() as p:
 
     time.sleep(random.uniform(5, 7))
 
-    # Login erfolgreich?
     if "challenge" in page.url or "two_factor" in page.url:
         print("🔐 Zwei-Faktor oder Challenge erkannt – Bot kann nicht fortfahren.")
     elif "/accounts/" in page.url:
         print("✅ Login erfolgreich! Starte jetzt mit Interaktionen...")
 
-        # Gehe zur Startseite
         page.goto("https://www.instagram.com/")
         time.sleep(random.uniform(4, 6))
 
@@ -81,7 +79,6 @@ with sync_playwright() as p:
                 print("⚠️ Kein Like-Button gefunden.")
         except Exception as e:
             print(f"⚠️ Keine Posts gefunden oder Like nicht möglich: {e}")
-
     else:
         print("❌ Login fehlgeschlagen – bitte Zugangsdaten überprüfen.")
 
